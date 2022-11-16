@@ -13,7 +13,8 @@ import (
 // MainSuite
 type MainSuite struct {
 	suite.Suite
-	staffID int
+	repoMock *mocks.RepositoryOperator
+	staffID  int
 }
 
 // TestMainSuite
@@ -22,13 +23,13 @@ func TestMainSuite(t *testing.T) {
 }
 
 // テストメソッド呼び出し時にCall
-func (r *MainSuite) SetupSuite() {
+func (r *MainSuite) SetupTest() {
+	r.repoMock = mocks.NewRepositoryOperator(r.T())
 	r.staffID = 4
 }
 
 // execute()のテスト 正常
 func (r *MainSuite) TestExecuteNormal() {
-	repoMock := mocks.NewRepositoryOperator(r.T())
 	staff := data.Staff{
 		ID:   r.staffID,
 		Name: data.StaffData[r.staffID]["name"].(string),
@@ -36,10 +37,10 @@ func (r *MainSuite) TestExecuteNormal() {
 		Rate: data.StaffData[r.staffID]["rate"].(float64),
 	}
 
-	repoMock.On("Staff", r.staffID).Return(staff)
-	repoMock.On("UpdateIncome", &staff)
+	r.repoMock.On("Staff", r.staffID).Return(staff)
+	r.repoMock.On("UpdateIncome", &staff)
 
-	respStaff := execute(r.staffID, repoMock)
+	respStaff := execute(r.staffID, r.repoMock)
 
 	expected := staff.Rate
 	assert.Equal(r.T(), expected, respStaff.Rate)
@@ -47,7 +48,6 @@ func (r *MainSuite) TestExecuteNormal() {
 
 // execute()のテスト Mockの引数が正しくない
 func (r *MainSuite) TestExecuteError1() {
-	repoMock := mocks.NewRepositoryOperator(r.T())
 	staff := data.Staff{
 		ID:   r.staffID,
 		Name: data.StaffData[r.staffID]["name"].(string),
@@ -55,10 +55,10 @@ func (r *MainSuite) TestExecuteError1() {
 		Rate: data.StaffData[r.staffID]["rate"].(float64),
 	}
 
-	repoMock.On("Staff", 2).Return(staff)
-	repoMock.On("UpdateIncome", &staff)
+	r.repoMock.On("Staff", 2).Return(staff)
+	r.repoMock.On("UpdateIncome", &staff)
 
-	respStaff := execute(r.staffID, repoMock)
+	respStaff := execute(r.staffID, r.repoMock)
 
 	expected := staff.Rate
 	assert.Equal(r.T(), expected, respStaff.Rate)
@@ -66,7 +66,6 @@ func (r *MainSuite) TestExecuteError1() {
 
 // execute()のテスト MockでAnythingを使う
 func (r *MainSuite) TestExecuteAnything() {
-	repoMock := mocks.NewRepositoryOperator(r.T())
 	staff := data.Staff{
 		ID:   r.staffID,
 		Name: data.StaffData[r.staffID]["name"].(string),
@@ -74,10 +73,10 @@ func (r *MainSuite) TestExecuteAnything() {
 		Rate: data.StaffData[r.staffID]["rate"].(float64),
 	}
 
-	repoMock.On("Staff", mock.AnythingOfType("int")).Return(staff)
-	repoMock.On("UpdateIncome", &staff)
+	r.repoMock.On("Staff", mock.AnythingOfType("int")).Return(staff)
+	r.repoMock.On("UpdateIncome", &staff)
 
-	respStaff := execute(r.staffID, repoMock)
+	respStaff := execute(r.staffID, r.repoMock)
 
 	expected := staff.Rate
 	assert.Equal(r.T(), expected, respStaff.Rate)
