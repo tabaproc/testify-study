@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // testingでsquare関数をテスト 正常

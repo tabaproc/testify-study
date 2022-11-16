@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/stretchr/testify/mock"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"github.com/tabaproc/testify-study/ex3/data"
 	"github.com/tabaproc/testify-study/ex3/mocks"
@@ -13,7 +13,8 @@ import (
 // MainSuite
 type MainSuite struct {
 	suite.Suite
-	staffID int
+	repoMock *mocks.RepoMock
+	staffID  int
 }
 
 // TestMainSuite
@@ -22,13 +23,13 @@ func TestMainSuite(t *testing.T) {
 }
 
 // テストメソッド呼び出し時にCall
-func (r *MainSuite) SetupSuite() {
+func (r *MainSuite) SetupTest() {
+	r.repoMock = new(mocks.RepoMock)
 	r.staffID = 4
 }
 
 // execute()のテスト 正常
 func (r *MainSuite) TestExecuteNormal() {
-	repoMock := new(mocks.RepoMock)
 	staff := data.Staff{
 		ID:   r.staffID,
 		Name: data.StaffData[r.staffID]["name"].(string),
@@ -38,11 +39,11 @@ func (r *MainSuite) TestExecuteNormal() {
 	staffSecond := staff
 	staffSecond.Rate += data.UpRate[data.StaffData[r.staffID]["post"].(string)]
 
-	repoMock.On("Staff", r.staffID).Return(staff)
-	repoMock.On("UpdateIncome", &staff).Times(1)
-	repoMock.On("UpdateIncome", &staffSecond).Times(1)
+	r.repoMock.On("Staff", r.staffID).Return(staff)
+	r.repoMock.On("UpdateIncome", &staff).Times(1)
+	r.repoMock.On("UpdateIncome", &staffSecond).Times(1)
 
-	respStaff := execute(r.staffID, repoMock)
+	respStaff := execute(r.staffID, r.repoMock)
 
 	expected := staff.Rate + (data.UpRate[staff.Post] * 2)
 	assert.Equal(r.T(), expected, respStaff.Rate)
@@ -50,7 +51,6 @@ func (r *MainSuite) TestExecuteNormal() {
 
 // execute()のテスト Mockの引数が正しくない
 func (r *MainSuite) TestExecuteError1() {
-	repoMock := new(mocks.RepoMock)
 	staff := data.Staff{
 		ID:   r.staffID,
 		Name: data.StaffData[r.staffID]["name"].(string),
@@ -60,11 +60,11 @@ func (r *MainSuite) TestExecuteError1() {
 	staffSecond := staff
 	staffSecond.Rate += data.UpRate[data.StaffData[r.staffID]["post"].(string)]
 
-	repoMock.On("Staff", 2).Return(staff)
-	repoMock.On("UpdateIncome", &staff).Times(1)
-	repoMock.On("UpdateIncome", &staffSecond).Times(1)
+	r.repoMock.On("Staff", 2).Return(staff)
+	r.repoMock.On("UpdateIncome", &staff).Times(1)
+	r.repoMock.On("UpdateIncome", &staffSecond).Times(1)
 
-	respStaff := execute(r.staffID, repoMock)
+	respStaff := execute(r.staffID, r.repoMock)
 
 	expected := staff.Rate + (data.UpRate[staff.Post] * 2)
 	assert.Equal(r.T(), expected, respStaff.Rate)
@@ -72,7 +72,6 @@ func (r *MainSuite) TestExecuteError1() {
 
 // execute()のテスト MockでAnythingを使う
 func (r *MainSuite) TestExecuteAnything() {
-	repoMock := new(mocks.RepoMock)
 	staff := data.Staff{
 		ID:   r.staffID,
 		Name: data.StaffData[r.staffID]["name"].(string),
@@ -82,11 +81,11 @@ func (r *MainSuite) TestExecuteAnything() {
 	staffSecond := staff
 	staffSecond.Rate += data.UpRate[data.StaffData[r.staffID]["post"].(string)]
 
-	repoMock.On("Staff", mock.AnythingOfType("int")).Return(staff)
-	repoMock.On("UpdateIncome", &staff).Times(1)
-	repoMock.On("UpdateIncome", &staffSecond).Times(1)
+	r.repoMock.On("Staff", mock.AnythingOfType("int")).Return(staff)
+	r.repoMock.On("UpdateIncome", &staff).Times(1)
+	r.repoMock.On("UpdateIncome", &staffSecond).Times(1)
 
-	respStaff := execute(r.staffID, repoMock)
+	respStaff := execute(r.staffID, r.repoMock)
 
 	expected := staff.Rate + (data.UpRate[staff.Post] * 2)
 	assert.Equal(r.T(), expected, respStaff.Rate)
@@ -94,7 +93,6 @@ func (r *MainSuite) TestExecuteAnything() {
 
 // executeのテスト Returnが正しくない
 func (r *MainSuite) TestExecuteError2() {
-	repoMock := new(mocks.RepoMock)
 	staff := data.Staff{
 		ID:   r.staffID,
 		Name: "",
@@ -103,11 +101,11 @@ func (r *MainSuite) TestExecuteError2() {
 	staffSecond := staff
 	staffSecond.Rate += data.UpRate["Member"]
 
-	repoMock.On("Staff", r.staffID).Return(staff)
-	repoMock.On("UpdateIncome", &staff).Times(1)
-	repoMock.On("UpdateIncome", &staffSecond).Times(1)
+	r.repoMock.On("Staff", r.staffID).Return(staff)
+	r.repoMock.On("UpdateIncome", &staff).Times(1)
+	r.repoMock.On("UpdateIncome", &staffSecond).Times(1)
 
-	respStaff := execute(r.staffID, repoMock)
+	respStaff := execute(r.staffID, r.repoMock)
 
 	expected := staff.Rate + (data.UpRate[staff.Post] * 2)
 	assert.Equal(r.T(), expected, respStaff.Rate)
