@@ -50,7 +50,7 @@ func (r *MainSuite) TestExecuteNormal() {
 }
 
 // execute()のテスト Mockの引数が正しくない
-func (r *MainSuite) TestExecuteError1() {
+func (r *MainSuite) TestExecuteError() {
 	staff := data.Staff{
 		ID:   r.staffID,
 		Name: data.StaffData[r.staffID]["name"].(string),
@@ -82,26 +82,6 @@ func (r *MainSuite) TestExecuteAnything() {
 	staffSecond.Rate += data.UpRate[data.StaffData[r.staffID]["post"].(string)]
 
 	r.repoMock.On("Staff", mock.AnythingOfType("int")).Return(staff)
-	r.repoMock.On("UpdateIncome", &staff).Times(1)
-	r.repoMock.On("UpdateIncome", &staffSecond).Times(1)
-
-	respStaff := execute(r.staffID, r.repoMock)
-
-	expected := staff.Rate + (data.UpRate[staff.Post] * 2)
-	assert.Equal(r.T(), expected, respStaff.Rate)
-}
-
-// executeのテスト Returnが正しくない
-func (r *MainSuite) TestExecuteError2() {
-	staff := data.Staff{
-		ID:   r.staffID,
-		Name: "",
-		Post: "",
-	}
-	staffSecond := staff
-	staffSecond.Rate += data.UpRate["Member"]
-
-	r.repoMock.On("Staff", r.staffID).Return(staff)
 	r.repoMock.On("UpdateIncome", &staff).Times(1)
 	r.repoMock.On("UpdateIncome", &staffSecond).Times(1)
 
