@@ -3,7 +3,6 @@ package main
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"github.com/tabaproc/testify-study/ex3/data"
@@ -46,7 +45,7 @@ func (r *MainSuite) TestExecuteNormal() {
 	respStaff := execute(r.staffID, r.repoMock)
 
 	expected := staff.Rate + (data.UpRate[staff.Post] * 2)
-	assert.Equal(r.T(), expected, respStaff.Rate)
+	r.Assert().Equal(expected, respStaff.Rate)
 }
 
 // execute()のテスト Mockの引数が正しくない
@@ -67,7 +66,7 @@ func (r *MainSuite) TestExecuteError() {
 	respStaff := execute(r.staffID, r.repoMock)
 
 	expected := staff.Rate + (data.UpRate[staff.Post] * 2)
-	assert.Equal(r.T(), expected, respStaff.Rate)
+	r.Assert().Equal(expected, respStaff.Rate)
 }
 
 // execute()のテスト MockでAnythingを使う
@@ -88,5 +87,5 @@ func (r *MainSuite) TestExecuteAnything() {
 	respStaff := execute(r.staffID, r.repoMock)
 
 	expected := staff.Rate + (data.UpRate[staff.Post] * 2)
-	assert.Equal(r.T(), expected, respStaff.Rate)
+	r.Assert().Equal(expected, respStaff.Rate)
 }
